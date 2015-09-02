@@ -5,6 +5,21 @@ ButterflyCoin is a PoS-based cryptocurrency.
 
 http://www.butterflycoin.info
 
+About Butterflypay
+------------------
+Why a (FLY) free currency (butterflycoin) this expression? 
+
+Yes, please check the following documents Anyone know, BTC transaction 
+information, this is the most important block composed of technical components,
+A> B> C ......> more.A OR B and MORE This will be the query fails, 
+anonymous pubkey bitpat technology, you can send message to any people .
+
+good luck A (SPEED) Fast Money (butterflycoin), our team focused on understanding
+the transaction information - until Learn BTC block composition, repeatedly 
+confirmed the composition of the transactions and understand very comprehensive, 
+butterflycoin will be in when you send <= You can freely use your BFC A (safe) safe currency (51%? Oh no it will not be possible POSV2 rejected 51% distributed DDOS 51%, more and more server)
+
+
 License
 -------
 
