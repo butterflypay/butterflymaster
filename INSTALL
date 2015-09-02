@@ -1,0 +1,9 @@
+Building ButterflyCoin
+
+See doc/readme-qt.rst for instructions on building ButterflyCoin QT,
+the intended-for-end-users, nice-graphical-interface, reference
+implementation of ButterflyCoin.
+
+See doc/build-*.txt for instructions on building butterflycoind,
+the intended-for-services, no-graphical-interface, reference
+implementation of ButterflyCoin.

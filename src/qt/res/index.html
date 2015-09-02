@@ -1,0 +1,1192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Butterfly</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link href="qrc:///css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+        <link href="qrc:///css/normalize.css" rel="stylesheet" type="text/css">
+        <link href="qrc:///css/footable.core.css" rel="stylesheet" type="text/css"/>
+        <link href="qrc:///css/footable.metro.css" rel="stylesheet" type="text/css"/>
+        <link href="qrc:///css/footable.metro.css" rel="stylesheet" type="text/css"/>
+        <link href="qrc:///css/contextMenu.css" rel="stylesheet" type="text/css"/>
+        <link href="qrc:///css/main.css" rel="stylesheet" type="text/css"/>
+
+        <script src="qrc:///js/jquery-2.1.1.min.js" type="text/javascript"></script>
+        <script src="qrc:///js/footable.js" type="text/javascript"></script>
+        <script src="qrc:///js/footable.sort.js" type="text/javascript"></script>
+        <script src="qrc:///js/footable.filter.js" type="text/javascript"></script>
+        <script src="qrc:///js/footable.paginate.js" type="text/javascript"></script>
+        <script src="qrc:///js/contextMenu.min.js" type="text/javascript"></script>
+        <script src="qrc:///js/iscroll.js" type="text/javascript"></script>
+        <script src="qrc:///js/jquery.touchSwipe.js" type="text/javascript"></script>
+        <script src="qrc:///js/jquery.transit.min.js" type="text/javascript"></script>
+        <script src="qrc:///js/qrcode.min.js" type="text/javascript"></script>
+        <script src="qrc:///js/jquery.leanModal.min.js" type="text/javascript"></script>
+        <script src="qrc:///js/markdown.min.js" type="text/javascript"></script>
+</head>
+<body>
+
+<div id="layout">
+    <!-- Menu toggle -->
+    <a href="#navpanel" id="navlink">
+        <!-- Hamburger icon -->
+        <span></span>
+    </a>
+
+    <nav id="navpanel">
+        <div class="menu">
+            <span><a id="file"     href="#" onmouseover="this.style.color='#ff4747'" onmouseout="this.style.color='#8f8b8b'">文件</a></span>
+            <span><a id="settings" href="#" onmouseover="this.style.color='#ff4747'" onmouseout="this.style.color='#8f8b8b'">设置</a></span>
+            <span><a id="help"     href="#" onmouseover="this.style.color='#ff4747'" onmouseout="this.style.color='#8f8b8b'">帮助</a></span>
+        </div>
+        <div style="text-align:center;">
+            <a href="http://www.butterflycoin.info" target="_blank"><img src="qrc:///images/bfc-vertical"></a>
+        </div>
+
+        <ul id="navitems" class="vmenu">
+            <li class="selected"><a href="#overview">概括</a></li>
+            <li><a href="#send">发送</a></li>
+            <li><a href="#receive">接收</a></li>
+            <li><a href="#transactions">交易记录</a></li>
+            <li><a href="#addressbook">地址簿</a></li>
+            <li><a href="#messages" onclick="iscrollReload(true);">蝴蝶币聊天</a></li>
+            <li><a href="#coinmessages" onclick="iscrollReload(true);">蝴蝶币多聊</a></li>
+            <li><a href="#chaindata" onclick="chainDataPage.updateAnonOutputs();">数据链 Data</a></li>
+            <li><a href="#blockdata" onclick="blockExplorerPage.updateLatestBlocks();">区块查询</a></li>
+            <li><a href="#game" onclick="game.ga();">蝴蝶竞猜</a></li>
+            <li><a href="#market" onclick="market.ma();">蝴蝶市场</a></li>
+            <li><a href="#auction" onclick="auction.au();">蝴蝶拍卖</a></li>
+            <li class="none"><a href="#options">Options</a></li>
+            <!--li><a href="#news">news</a></li-->
+        </ul>
+
+        <div id="navinfo">
+            <a id="clientinfo" href="#about">Butterflycoin</a>
+            <progress id="syncProgressBar" max=100 value=1 title="Catching up...
+                                                                  downloaded 0 blocks of history..."></progress>
+        </div>
+    </nav><!-- /navpanel -->
+
+    <div class="container">
+        <div id="header" class="flex">
+            <div id="txnsearch" class="flex-item">
+                <input type="search" placeholder="搜索 交易记录" oninput="$('#filter-transaction').val(this.value).trigger('keyup');if($('li.selected a[href=#transactions]').length==0)$('#navpanel li a[href=#transactions]').click();" />
+            </div>
+            <div class="user-profile">
+                <span class="user-avatar">
+                    <img src="qrc:///images/default">
+                    <span style="display:none" class="user-notifications">
+                        <span id="message-count">0</span>
+                    </span>
+                </span>
+                <span class="user-info">
+                    <span class="user-name"></span>
+                    <span class="user-menu">
+                        <!--- <i class="fa fa-check font-26px fa-angle-down"></i> -->
+                    </span>
+                    <br>
+                    <span class="user-address"></span>
+                </span>
+            </div>
+        </div><!-- /header -->
+
+        <div id="qrcode-modal" class="content">
+            <a class="modal_close" href="#close"><i class="fa fa-times-circle red"></i></a>
+            <div id="qrcode"></div>
+
+            <textarea id="qrcode-data" style="width:99%;" disabled rows="3"></textarea>
+            <br><br>
+
+            <span style="white-space:nowrap;">
+                <label for="qraddress" class="recipient">地址:</label>
+                <input id="qraddress" class="pay_to input_box" style="width:250px" placeholder="输入一个蝴蝶地址 (例如 ButterflywrppUwwNUo1GCRDTibz)" onchange="showQRCode();" />
+            </span>
+
+            <span style="white-space:nowrap;">
+                <label for="qrlabel" class="recipient">标签:</label>
+                <input id="qrlabel" class="label input_box" style="width:250px" placeholder="输入一个标签，这个地址将其添加到您的地址簿" onchange="showQRCode();" />
+            </span>
+
+            <span style="white-space:nowrap;">
+                <label for="qrnarration" class="recipient">信息旁白:</label>
+                <input id="qrnarration" class="narration input_box" style="width:250px" placeholder="输入一个信息发送与支付（最多24个字符）" onchange="showQRCode();" />
+            </span>
+
+            <span style="white-space:nowrap;">
+                <label for="qramount" class="recipient">数量:</label>
+                <input id="qramount" style="width:140px;" type="number" placeholder="0.00000000" step="0.01" value="0.00000000" onchange="unit.parse(this, $('#qrunit').val());showQRCode();" />
+                <select id="qrunit" class="unit button is-inverse has-fixed-icon" style="margin-left:10px; height:43px; width:100px;" onchange="unit.format('#qramount', $(this).val());showQRCode();">
+                    <option value="0" title="Butterfly">BFC</option>
+                    <option value="1" title="Milli-Butterfly (1 / 1000)">mBFC</option>
+                    <option value="2" title="Micro-Butterfly (1 / 1000000)">&micro;BFC</option>
+                    <option value="3" title="Butterflyshi (1 / 100000000)">Butterflyshi</option>
+                </select>
+            </span>
+
+        </div>
+
+        <!-- Overview Page -->
+       <article id="overview">
+            <div class="content top">
+                <h2 class="contracted">余额 <span class="outofsync syncing">out of sync</span></h2>
+
+                <!--span class="incoming-transactions none">
+                    <i class="fa fa-sign-in margin-right-10"></i>
+                    498.<span class="cents">34000000</span>
+                    <span class="units">BUTTERFLY</span>
+                </span-->
+
+                <div class="total-balance">
+                    <div>
+                        <span id="total-big">
+                            <span>0</span>
+                            <span class="light-red">.</span>
+                            <span class="cents">00</span>
+                            <span class="units">BFC</span>
+                        </span>
+                        <span id="staking-big" class="staking">
+                            <span>0</span>
+                            <span class="light-red">.</span>
+                            <span class="cents">00</span>
+                            <span class="units">BFC</span>
+                            <i class="fa fa-cog"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="wallet">
+
+                    <div>
+                        <table id="balances">
+                            <tr><td>可用余额:      </td><td class="balance" >0.00</td><td class="unit">BFC</td></tr>
+                            <tr><td>蝴蝶:         </td><td id="butterflyBal"  >0.00</td><td class="unit">BFC</td></tr>
+                            <tr><td>已收入:       </td><td id="reserved"   >0.00</td><td class="unit">BFC</td></tr>
+                            <tr><td>权益累积:          </td><td id="stake"      >0.00</td><td class="unit">BFC</td></tr>
+                            <tr><td>未确认交易:    </td><td id="unconfirmed">0.00</td><td class="unit">BFC</td></tr>
+                            <tr><td>未成熟:       </td><td id="immature"   >0.00</td><td class="unit">BFC</td></tr>
+
+                            <tr><td><b>余额:   </b></td><td id="total"      >0.00</td><td class="unit">BFC</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom">
+                 <div id="overview-list ">
+                    <div class="content flex">
+                        <div class="flex-item grow one-third-width">
+                            <h2>最近交易</h2>
+
+                            <div id="recenttxns">
+
+                            </div>
+                        </div>
+                        <div class="flex-item grow one-third-width">
+                            <h2>官方支持</h2>
+                            <h5><a style="color:#292828">Email:admin@butterflycoin.info</a></h5>
+                            <h5><a href="https://blockchain.info/address/1D3dwg4KGKCJzscpw3YBvVNNqGvKdcj8hU" target="_blank" style="text-decoration:none;color:#1c1b1b"" onmouseover="this.style.color='#ff4747'" onmouseout="this.style.color='#1c1b1b'">官方比特币地址</a><h5>
+                            <h5><a href="http://www.butterflycoin.info" target="_blank" style="text-decoration:none;color:#1c1b1b"" onmouseover="this.style.color='#ff4747'" onmouseout="this.style.color='#1c1b1b'">官方主页</a><h5>
+                            <h5><a href="http://freecoin.butterflycoin.info" target="_blank" style="text-decoration:none;color:#1c1b1b"" onmouseover="this.style.color='#ff4747'" onmouseout="this.style.color='#1c1b1b'">免费硬币（启用）</a></h5>
+                            <h5><a href="#" target="_blank" style="text-decoration:none;color:#1c1b1b"" onmouseover="this.style.color='#ff4747'" onmouseout="this.style.color='#1c1b1b'">交易所</a></h5>
+                            <h5><a href="#" target="_blank" style="text-decoration:none;color:#1c1b1b"" onmouseover="this.style.color='#ff4747'" onmouseout="this.style.color='#1c1b1b'">矿池</a></h5>
+                            <h5><a href="http://explorer.butterflycoin.info/" target="_blank" style="text-decoration:none;color:#1c1b1b"" onmouseover="this.style.color='#ff4747'" onmouseout="this.style.color='#1c1b1b'">WEB区块查询</a></h5>
+                            <h5><a><img border="0" src="http://butterflycoin.info/qqgroup128.png" alt="(中国区)蝴蝶币推广交流" title="(中国区)蝴蝶币推广交流"></a></h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article><!-- /overview page -->
+
+
+        <!-- Send Page -->
+        <article id="send" style="display:none;">
+            <div id="sendoptions" class="content top">
+
+                <h2>发送选项</h2>
+
+                <div id="coincontrol">
+
+                    <div id="coincontrol_enabled" style="display:block;">
+                        <a class="button is-inverse has-icon-spacing" class="button" id="coincontrol_inputs" onclick="bridge.openCoinControl();">Inputs</a> <label id="coincontrol_auto" for="coincontrol_inputs" class="coincontrol_inputs"> 自动选择</label>
+                        <br/>
+                        <div id="coincontrol_labels" style="display:none;">
+                            <span style="white-space:nowrap;">
+                                <label for="coincontrol_quantity" class="coincontrol_inputs">数量: </label>
+                                <span id="coincontrol_quantity"></span>
+                            </span>
+
+                            <span style="white-space:nowrap;">
+                                <label for="coincontrol_amount" class="coincontrol_inputs">数量: </label>
+                                <span id="coincontrol_amount"></span>
+                            </span>
+
+                            <span style="white-space:nowrap;">
+                                <label for="coincontrol_fee" class="coincontrol_inputs">费用: </label>
+                                <span id="coincontrol_fee"></span>
+                            </span>
+
+                            <span style="white-space:nowrap;">
+                                <label for="coincontrol_afterfee" class="coincontrol_inputs">收费后: </label>
+                                <span id="coincontrol_afterfee"></span>
+                            </span>
+
+                            <span style="white-space:nowrap;">
+                                <label for="coincontrol_bytes" class="coincontrol_inputs">字节: </label>
+                                <span id="coincontrol_bytes"></span>
+                            </span>
+
+                            <span style="white-space:nowrap;">
+                                <label for="coincontrol_priority" class="coincontrol_inputs">优先: </label>
+                                <span id="coincontrol_priority"></span>
+                                </span>
+
+                            <span style="white-space:nowrap;">
+                                <label for="coincontrol_low" class="coincontrol_inputs">低输出: </label>
+                                <span id="coincontrol_low"></span>
+
+                            <span style="white-space:nowrap;">
+                                <label for="coincontrol_change" class="coincontrol_inputs">改变: </label>
+                                <span id="coincontrol_change"></span>
+                            </span>
+                        </div>
+                        <br/>
+
+                        <label>自定义更改地址： </label>
+                        <div class="flex-left">
+                            <input id="change_address" title="Optional address to receive transaction change" placeholder="输入一个蝴蝶地址 (例如 ButterflywrppUwwNUo1GCRDTibz)" maxlength="128" oninput="base58.check(this);" />
+                            <a class="button is-inverse has-fixed-icon"  style="margin-right:10px; margin-left:10px; height:43px; width:43px;" onclick="openAddressBook('#change_address', '', false)"><i class="fa fa-book"></i></a>
+                            <a class="button is-inverse has-fixed-icon"  style="margin-right:10px; height:43px; width:43px;" onclick="paste('#change_address')"><i class="fa fa-files-o"></i></a>
+                            <a class="button is-inverse has-fixed-icon"  style="height:43px; width:43px;" onclick="$('#change_address').val('').css('background', '').css('color', '');"><i class="fa fa-times"></i></a>
+                        </div>
+                        <br/>
+                        <br/>
+
+                         <a class="button is-inverse has-icon-spacing" id="disable_coincontrol" href="javascript:toggleCoinControl(false);">关闭选项 <i class="fa fa-times"></i></a>
+                    </div>
+
+                    <div id="coincontrol_disabled" style="display:none;">
+                        <a class="button is-inverse has-icon-spacing"  id="enable_coincontrol" href="javascript:toggleCoinControl(true);">控制选项 <i class="fa fa-check"></i></a>
+                    </div>
+                </div><!-- #coincontrol -->
+
+                <select id="txn_type" class="txn_type button is-inverse has-fixed-icon"  style="width:180px;" onchange="changeTxnType();">
+                    <option value="0" title="BFC to BFC" selected>BFC to BFC</option>
+                    <option value="1" title="BFC to Butterfly">BFC to Butterfly</option>
+                    <option value="2" title="Butterfly to Butterfly">Butterfly to Butterfly</option>
+                    <option value="3" title="Butterfly to BFC">Butterfly to BFC</option>
+                </select>
+
+                <span id="tx_ringsize">
+                    <label for="ring_size" class="ring_size" style="margin-left:10px;margin-top:0;">Ring Size:</label>
+                    <input id="ring_size" class="ring_size input_box" type="number" min="3" max="200" step="1" value="16" />
+                </span>
+            </div><!-- #sendoptions.top -->
+
+            <div class="bottom">
+                <div class="content">
+                    <div id="recipients">
+                    </div>
+                    <div class="ui-buttons">
+                        <a class="button is-inverse has-icon-spacing" onclick="addRecipient();" title="Send to multiple recipients at once"><i class="fa fa-plus"></i>添加收件人</a>
+                        <a  class="button is-inverse has-icon-spacing" onclick="clearRecipients();" title="Remove all transaction fields"><i class="fa fa-close"></i>清除所有</a>
+                        <span title="Current spendable balance"><a class="current_spenable_balance"><b>余额:</b> <span class="balance">0.00</span> <span class="unit">BFC</span></span>
+                        <span></span>
+                        <a class="button is-inverse has-icon-spacing"  id="suggest_ring_size" href="javascript:suggestRingSize();">Suggest Ring Size <i class="fa fa-calculator"></i></a>
+                        <a class="button is-inverse has-icon-spacing" onclick="sendCoins();" title="Confirm the send action"><i class="fa fa-arrow-right"></i>发送</a>
+                    </div>
+                </div><!-- /content -->
+            </div><!-- /bottom -->
+        </article><!-- /send page -->
+
+        <!-- Receive Page -->
+        <article id="receive" style="display:none;">
+            <div class="content top">
+                <h2>接收地址</h2>
+                以下是接收蝴蝶币的付款地址,您可以新建不同的地址.(拒绝交易跟踪,请确保新建地址并且同意Stealth address协议,你的交易将无法被跟踪).
+            </div>
+
+            <div class="bottom">
+
+                <div class="content flex">
+                    <input id="filter-address" style="width:100%;height:40px;padding:0 10px;margin-bottom:10px;" placeholder="通过标签或地址过滤..." />
+
+                    <table class="footable butterfly" data-page-size=20 data-filter="#filter-address">
+                        <thead>
+                            <tr>
+                                <th data-toggle="true" data-sort-initial="true">标签</th>
+                                <th data-hide="phone">地址</th>
+                                <th data-hide="phone,tablet">公匙 Key</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!--tr>
+                                <td class="label" class="editable">(no label)</td>
+                                <td class="address">BSz5VuQGCFJ36E7UQmr7U39w7wksm5K4KZ</td>
+                                <td class="pubkey"></td>
+                            </tr-->
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3">
+                                    <div class="pagination pagination-centered hide-if-no-paging"></div>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <div class="ui-buttons">
+                        <a class="button is-inverse has-icon-spacing" href="#filter-address" onclick="$('#filter-address').val(bridge.newAddress(true)).trigger('keyup');resizeFooter();"><i class="fa fa-plus"></i>新建地址</a>
+                        <a class="button is-inverse has-icon-spacing" href="javascript:copy('#receive .footable .selected .address');"><i class="fa fa-copy"></i>复制地址</a>
+                        <a class="button is-inverse has-icon-spacing" href="#qrcode-modal" onclick="showQRCode($('#receive .footable .selected .address').text(), $('#receive .footable .selected .label').attr('data-value'));"><i class="fa fa-qrcode fa-lg margin-right-10"></i>显示QR码</a>
+                        <a class="button is-inverse has-icon-spacing" href="javascript:bridge.userAction({'signMessage': $('#receive .footable .selected .address').text()});"><i class="fa fa-pencil-square-o"></i>信息签名</a>
+                    </div>
+                </div><!-- /content -->
+            </div><!-- /bottom -->
+        </article><!-- /receive page -->
+    <div id="transaction-info-modal" style="display:none;">
+            <a class="modal_close" href="#close"><i class="fa fa-times-circle red"></i></a>
+        <div id="transaction-info-link">
+            <div id="transaction-info">
+            </div>
+        </div>
+    </div>
+        <!-- Transactions Page -->
+        <article id="transactions" style="display:none;">
+            <div class="content top">
+                <h2>交易记录</h2>
+            </div>
+
+            <div class="bottom">
+
+                <div class="content">
+                    <input id="filter-transaction" style="width:100%;height:40px;padding:0 10px;margin-bottom:10px;" placeholder="通过标签或地址过滤..." />
+
+                    <table class="footable butterfly" data-page-size=20 data-filter="#filter-transaction" data-manual="true">
+                        <thead>
+                            <tr>
+                                <th data-toggle="true" data-type="numeric" title="Transaction status. Hover over this field to show number of confirmations.">确认</th>
+                                <th data-type="numeric" data-sort-initial="descending" title="Date and time that the transaction was received.">时间</th>
+                                <th title="Type of transaction.">方式</th>
+                                <th data-hide="phone,tablet" title="Destination address of transaction.">地址</th>
+                                <th data-hide="phone" title="Short payment note.">信息标签</th>
+                                <th data-type="numeric" title="Amount removed from or added to balance.">数量</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- TODO: showDetails >
+                            <tr title="Unconfirmed transaction">
+                                <td class="status" data-value="0"><i class="fa fa-circle fa-lg margin-right-10"></td>
+                                <td class="date" data-value="1409357378">2014/08/30 22:09</td>
+                                <td class="type">Mined</td>
+                                <td class="address" data-value="Shk8EZEJm7Kphw8muuWzZYTgTJsPZ2ocfk"><img src="qrc:///icons/tx_mined" /><span class="editable">Shk8EZEJm7Kphw8muuWzZYTgTJsPZ2ocfk</span></td>
+                                <td class="narration"></td>
+                                <td class="anount" >0.02376503</td>
+                            </tr>
+                            <tr title="Confirmed (%.status,data-value% confirmations)
+                                       %.type% %.address% (%.address,data-value%)">
+                                <td class="status" data-value="332"><i class="fa fa-check-circle fa-lg green margin-right-10"></td>
+                                <td class="date" data-value="1409353655">2014/08/30 19:50</td>
+                                <td class="type">Received with</td>
+                                <td class="address" data-value="SdmUNgks4yF3Lsg4yHp6TeP5eMUhwD4maf"><img src="qrc:///icons/tx_input" /><span class="editable">From c-cex</span></td>
+                                <td class="narration">Coffee</td>
+                                <td class="amount" data-type="numeric">1231.325</td>
+                            </tr-->
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="6" style="background:#E5203D!important;">
+                                    <div class="pagination pagination-centered hide-if-no-paging"></div>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div><!-- /content -->
+            </div><!-- /bottom -->
+        </article><!-- /transactions page -->
+
+
+        <!-- Address Book Page -->
+        <article id="addressbook" style="display:none;">
+            <div class="content top">
+                <h2>地址簿</h2>
+            </div>
+            <div class="bottom">
+
+                <div class="content">
+                    <input id="filter-addressbook" style="width:100%;height:40px;padding:0 10px;margin-bottom:10px;" placeholder="通过标签或地址过滤..." />
+
+                    <table class="footable butterfly" data-page-size=20 data-filter="#filter-addressbook">
+                        <thead>
+                            <tr>
+                                <th data-toggle="true" data-sort-initial="true">标签</th>
+                                <th data-hide="phone">地址</th>
+                                <th data-hide="phone,tablet">公匙 Key</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!--tr>
+                                <td class="label" class="editable">(no label)</td>
+                                <td class="address" class="editable">SSz5VuQGCFJ36E7UQmr7U39w7wksm5K4KZ</td>
+                                <td class="pubkey" class="editable"></td>
+                            </tr-->
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" style="background:#E5203D!important;">
+                                    <div class="pagination pagination-centered hide-if-no-paging"></div>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <div class="ui-buttons">
+                       <a class="button is-inverse has-icon-spacing" href="#filter-addressbook" onclick="$('#filter-addressbook').val(bridge.newAddress(false)).trigger('keyup');resizeFooter();"><i class="fa fa-plus"></i>新建地址</a>
+                       <a class="button is-inverse has-icon-spacing" href="javascript:copy('#addressbook .footable .selected .address');"><i class="fa fa-copy"></i>复制地址</a>
+                       <a class="button is-inverse has-icon-spacing" href="#qrcode-modal" onclick="showQRCode($('#addressbook .footable .selected .address').text(), $('#addressbook .footable .selected .label').attr('data-value'));"><i class="fa fa-qrcode fa-lg margin-right-10"></i>显示QR码</a>
+                       <a class="button is-inverse has-icon-spacing" href="javascript:bridge.userAction({'verifyMessage': $('#addressbook .footable .selected .address').text()});"><i class="fa fa-check"></i>验证信息</a>
+                       <a class="button is-inverse has-icon-spacing" href="#filter-addressbook" onclick="var addr=$('#addressbook .footable .selected .address');if(bridge.deleteAddress(addr.text()))addr.closest('tr').remove();resizeFooter();"><i class="fa fa-close"></i>删除</a>
+                    </div>
+                </div><!-- /content -->
+            </div><!-- /bottom -->
+        </article><!-- /addressbook page -->
+
+        <div id="message-preview-modal" style="display:none;">
+            <a class="modal_close" href="#close"><i class="fa fa-times-circle red"></i></a>
+            <div id="message-preview"></div>
+        </div>
+
+        <div id="new-contact-modal" style="display:none;" class="content">
+            <a class="modal_close" href="#close"><i class="fa fa-times-circle red"></i></a>
+            <div style="white-space:nowrap;">
+                <label for="new-contact-address" class="recipient">地址: </label>
+                <input id="new-contact-address"  class="recipient input_box" style="width: 300px;" title="编辑信息到（例如 ButterflywrppUwwNUo1GCRDTibz）" placeholder="输入一个蝴蝶地址 (例如 ButterflywrppUwwNUo1GCRDTibz)" onchange="if(base58.check(this)) $('#new-contact-pubkey').val(bridge.getPubKey(this.value, $('#new-contact-name').val()));" maxlength="128" oninput="base58.check(this);"/>
+                <a class="button is-inverse has-fixed-icon" title="从地址簿选择地址" style="margin-right:10px; margin-left:10px; height:43px; width:43px;" onclick="openAddressBook('#new-contact-address', '#new-contact-name', true)"><i class="fa fa-book"></i></a>
+                <a class="button is-inverse has-fixed-icon" title="从剪贴板粘贴地址"     style="margin-right:10px; height:43px; width:43px;" onclick="paste('#new-contact-address')"><i class="fa fa-files-o"></i></a>
+                <a class="button is-inverse has-fixed-icon" title="删除此收件人"            style="height:43px; width:43px;" onclick="$('#new-contact-address').val('').css('background', '').css('color', '');"><i class="fa fa-times"></i></a>
+            </div>
+            <div style="white-space:nowrap;">
+                <label for="new-contact-name" class="recipient">名字: </label>
+                <input id="new-contact-name"  class="recipient input_box" style="width: 475px;" title="输入一个标签，这个地址将其添加到您的地址簿" placeholder="输入一个标签，这个地址将其添加到您的地址簿" onchange="$('#new-contact-pubkey').val(bridge.getPubKey($('#new-contact-address').val(), this.value));" maxlength="128"  />
+            </div>
+            <div id="new-contact-pubkey-row" style="white-space:nowrap;">
+                <label for="new-contact-pubkey" class="recipient">公匙 Key: </label>
+                <input id="new-contact-pubkey"  class="recipient input_box" style="width: 475px;" title="输入的公共密钥为上述地址" placeholder="输入的公共密钥为上述地址" onchange="bridge.setPubKey($('#new-contact-address').val(), this.value)" />
+            </div>
+
+            <a class="button is-inverse has-icon-spacing" href="javascript:newConversation();">开始交谈 <i class="fa fa-check"></i></a>
+        </div>
+
+        <!-- Messages Page -->
+        <article id="messages" style="display:none;">
+            <div class="content top">
+                <h2>蝴蝶聊天</h2>
+            </div>
+
+            <div class="bottom">
+                <div id="contact-list">
+                    <div>
+                        <a id='start-conversation' href="#new-contact-modal"><i class="fa fa-plus margin-right-10"></i>开始交谈</a>
+                        <ul>
+                            <!--li id="contact3" class="contact">
+                                    <img src="qrc:///images/default">
+                                    <span class="contact-info">
+                                        <span class="contact-name">crz-</span>
+                                        <span class="contact-address">ShCEPkbdix9qBjJ6TNNatjA7YU8PAHq2PJ</span>
+                                    </span>
+                                    <span class="contact-options">
+                                        <span class="message-notifications">3</span>
+                                        <span class="delete" onclick=""></span>
+                                        <span class="favorite favorited"></span>
+                                    </span>
+                            </li-->
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="contact-profile"></div>
+                <div class="contact-discussion">
+                    <ul>
+                        <!--li class="user-message">
+                                <span class="info">
+                                    <img src="qrc:///images/default">
+                                    <span class="user-name">ffmad</span>
+                                </span>
+                                <span class="message-content">
+                                    <span class="timestamp">1-09-2014 14:50</span>
+                                    <span class="message-text">hello dev !</span>
+                                </span>
+                        </li>
+                        <li class="other-message">
+                                <span class="info">
+                                    <img src="qrc:///images/default">
+                                    <span class="user-name">BFCDev</span>
+                                </span>
+                                <span class="message-content">
+                                    <span class="timestamp">1-09-2014 14:57</span>
+                                    <span class="message-text">How are you ?</span>
+                                </span>
+                        </li-->
+                    </ul>
+                </div>
+                <form class="text-box" action="" method="=">
+                    <input id="pasteTo" type="hidden" />
+                    <textarea id="message-text" placeholder="Type your message here ..." oninput="this.editor.update()" maxlength="4000"></textarea>
+
+                    <div class="tools-bar">
+                        <div class="left-bar">
+                            <a href="#" class="bold" onclick="editorCommand('**', '**');"><i class="fa fa-bold"></i></a>
+                            <a href="#" class="italic" onclick="editorCommand('*', '*');"><i class="fa fa-italic"></i></a>
+                            <a href="#" class="underline" onclick="editorCommand('__', '__');"><i class="fa fa-underline"></i></a>
+                            <!--a href="#" class="strikethrough" onclick="editorCommand('~~', '~~');"><i class="fa fa-strikethrough"></i></a-->
+                            <a href="#" class="link" onclick="editorCommand('[', '](http://www.butterflycoin.info)');"><i class="fa fa-link"></i></a>
+                            <a href="#" class="image" onclick="editorCommand('![imageinfo](', ')');"><i class="fa fa-image"></i></a>
+                        </div>
+                        <div class="right-bar">
+                            <a class="submit" href="javascript:sendMessage();">Send<i class="fa fa-caret-right"></i></a>
+                            <a id="preview-message" href="#message-preview-modal" class="submit">preview<i class="fa fa-eye"></i></a>
+                            <!--a href="#" class="emoticons">
+                                <i class="fa fa-smile-o"></i>
+                                <i class="fa fa-caret-down"></i>
+                            </a-->
+                        </div>
+                        <br>
+                    </div>
+                    <div style="white-space:nowrap;clear:both;">
+                        <label for="message-from-address" style="padding-right:5px;">来自地址:</label>
+                        <select id="message-from-address" class="unit button is-inverse has-fixed-icon" style="width:265px;padding:2px;">
+                        </select>
+                        <input id="message-to-address" type="hidden" />
+                    </div>
+                    <script>
+                        function Editor(input, preview) {
+                            this.update = function () {
+                                preview.innerHTML = micromarkdown.parse(input.value);
+                            };
+                            input.editor = this;
+                            this.update();
+                        }
+
+                        new Editor($("#message-text")[0], $("#message-preview")[0]);
+
+                        $("#message-text").on('keydown', function(e) {
+                            if(e.which == 13) {
+                                e.preventDefault();
+                                if (e.shiftKey) {
+                                    var editor = $(this)[0];
+
+                                    if(typeof editor.selectionStart !== 'undefined')
+                                        editor.value = editor.value.substring(editor.selectionStart, 0) + "\n" + editor.value.substring(editor.selectionStart);
+                                    else
+                                        editor.value +=  "\n";
+
+                                    return;
+                                }
+                                sendMessage();
+                            }
+                            if(e.which == 27)
+                                $(this).val("");
+                        });
+
+                        $("#preview-message").leanModal({ top : 100, overlay : 0.5, closeButton: "#message-preview-modal .modal_close" });
+                    </script>
+                </form>
+            </div><!-- /bottom -->
+        </article><!-- /messages page -->
+
+
+
+        <!-- coinMessages Page -->
+        <article id="coinmessages" style="display:none;">
+            <div class="content top">
+                <h2>蝴蝶多聊</h2>
+            </div>
+
+            <div class="bottom">
+
+            </div><!-- /bottom -->
+        </article><!-- /coinmessages page -->
+
+
+
+
+
+
+        <!-- Chain Data Page -->
+        <article id="chaindata" style="display:none;">
+            <div class="content top">
+                <h2>数据链 Data</h2>
+            </div>
+
+            <div class="bottom">
+
+                <div class="content">
+                    <input id="filter-outputs" style="width:75%;height:40px;padding:0 10px;margin-bottom:10px;" placeholder="滤波器输出..." />
+                    <a id="show-own-outputs" style="width:24%;height:37px;margin-bottom:3px;"              class="button is-inverse has-icon-spacing" href="#">显示自己的输出    <i class="fa fa-user"></i></a>
+                    <a id="show-all-outputs" style="width:24%;height:37px;margin-bottom:3px;display:none;" class="button is-inverse has-icon-spacing" href="#">显示系统输出 <i class="fa fa-bank"></i></a>
+
+                    <table class="footable butterfly" data-page=false data-filter="#filter-outputs">
+                        <thead>
+                            <tr>
+                                <th data-toggle="true"       data-type="numeric" title="Coin Value" data-sort-initial="ascending">硬币量</th>
+                                <th data-hide="phone,tablet" data-type="numeric" title="No. Owned Mature">自己的（成熟）</th>
+                                <th data-hide="phone"        data-type="numeric" title="No. System Mature">系统 (成熟)</th>
+                                <th                          data-type="numeric" title="No. Spends">速度</th>
+                                <th data-hide="phone"        data-type="numeric" title="Chain Least Depth">最小深度</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="5" style="background:#E5203D!important;">
+                                    <div class="pagination pagination-centered hide-if-no-paging"></div>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div><!-- /content -->
+            </div><!-- /bottom -->
+        </article><!-- /chaindata page -->
+
+        <div id="blkexp-txn-modal" style="display:none;">
+            <a class="modal_close" href="#close"><i class="fa fa-times-circle red"></i></a>
+            <div class="ng-scope" data-ng-if="block.hash">
+                <div class="well well-sm ellipsis">
+                  <h2>交易的HASH值</h2>
+                  <span class="text-muted" id="txn-hash"></span>
+                </div>
+                </br></br>    
+                <h2>总结</h2>
+                <div class="row">
+                  <div class="col-md-6">
+                    <table class="table" style="table-layout: fixed">
+                      <tbody>
+                      <tr class="modal-tr">
+                        <td><strong>Size (bytes)</strong></td>
+                        <td class="text-muted" id="txn-size"></td>
+                      </tr>
+                      <tr class="modal-tr">
+                        <td><strong>Received Time</strong></td>
+                        <td class="text-muted" id="txn-rcvtime"></td>
+                      </tr>
+                      <tr class="modal-tr">
+                        <td><strong>Mined Time</strong></td>
+                        <td class="text-muted" id="txn-minetime"></td>
+                      </tr> 
+                      <tr class="modal-tr">
+                        <td><strong>Included in Block</strong></td>
+                        <td class="text-muted" id="txn-blkhash"></td>
+                      </tr>
+                      <tr class="modal-tr">
+                        <td id="lbl-reward-or-fee"><strong>Reward</strong></td>
+                        <td class="text-muted" id="txn-reward"></td>
+                      </tr>
+                      <tr class="modal-tr">
+                        <td><strong>Confimations</strong></td>
+                        <td class="text-muted" id="txn-confirmations"></td>
+                      </tr>
+                      <tr class="modal-tr">
+                        <td><strong>Value</strong></td>
+                        <td class="text-muted" id="txn-value"></a></td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                </br></br>
+                <div>
+                    <table>
+                        <tr>
+                            <td width="50%" style="vertical-align:top">
+                              <table id="txn-detail-inputs" class="footable butterfly" width="50%">
+                                <thead>
+                                    <tr>
+                                      <th data-toggle="true"  title="Inputs" data-sort-initial="ascending">Inputs</th>
+                                      <th data-toggle="true"  title="Values" data-sort-initial="ascending">Values</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="2" style="background:#E5203D!important;">
+                                            <div class="pagination pagination-centered hide-if-no-paging"></div>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                              </table>
+                            </td>
+                            <td width="50%" style="vertical-align:top">
+                              <table id="txn-detail-outputs" class="footable butterfly" width="50%">
+                                  <thead>
+                                      <tr>
+                                        <th data-toggle="true"  title="Outputs" data-sort-initial="ascending">Outputs</th>
+                                        <th data-toggle="true"  title="Values" data-sort-initial="ascending">Values</th>
+                                      </tr>
+                                  </thead>
+                                  <tbody>
+                                  </tbody>
+                                  <tfoot>
+                                      <tr>
+                                          <td colspan="2" style="background:#E5203D!important;">
+                                              <div class="pagination pagination-centered hide-if-no-paging"></div>
+                                          </td>
+                                      </tr>
+                                  </tfoot>
+                              </table>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="error-msg"></div>
+              </div>
+        </div>
+
+
+        <div id="block-info-modal" style="display:none;">
+            <a class="modal_close" href="#close"><i class="fa fa-times-circle red"></i></a>
+            <div class="butterfly" id="block-info"></div>
+            <div class="ng-scope" data-ng-if="block.hash">
+                <div class="well well-sm ellipsis">
+                  <h2>区块HASH值</h2>
+                  <span class="text-muted" id="blk-hash" onmouseover="this.style.color='#ff4747'" onmouseout="this.style.color='#000000'"></span>
+                </div>
+                </br></br>    
+                <h2>总结</h2>
+                <div class="row">
+                  <div class="col-md-6">
+                    <table class="table" style="table-layout: fixed">
+                      <tbody>
+                      <tr class="modal-tr">
+                        <td><strong>交易记录</strong></td>
+                        <td class="text-muted" id="blk-numtx"></td>
+                      </tr>
+                      <tr class="modal-tr">
+                        <td><strong>高度</strong></td>
+                        <td class="text-muted" id="blk-height"></td>
+                      </tr>
+                      <tr class="modal-tr">
+                        <td><strong>区块字节</strong></td>
+                        <td class="text-muted" id="blk-type"></td>
+                      </tr> 
+                      <tr class="modal-tr">
+                        <td><strong>区块奖励</strong></td>
+                        <td class="text-muted" id="blk-reward"></td>
+                      </tr>
+                      <tr class="modal-tr">
+                        <td><strong>时间截</strong></td>
+                        <td class="text-muted" id="blk-timestamp"></td>
+                      </tr>
+                      <tr class="modal-tr">
+                        <td><strong>Merkle Root</strong></td>
+                        <td class="text-muted" id="blk-merkleroot"></td>
+                      </tr>
+                      <tr class="modal-tr">
+                        <td><strong>上一个区块</strong></td>
+                        <td class="text-muted" id="blk-prevblock"></a></td>
+                      </tr>
+                      <tr class="modal-tr">
+                        <td><strong>下一个区块</strong></td>
+                        <td class="text-muted" id="blk-nextblock"></a></td>
+                      </tr>
+
+                      <tr class="modal-tr">
+                        <td><strong>难度</strong></td>
+                        <td class="text-muted" id="blk-difficulty"></td>
+                      </tr>
+                      <tr class="modal-tr">
+                        <td><strong>位</strong></td>
+                        <td class="text-muted" id="blk-bits"></td>
+                      </tr>
+                      <tr class="modal-tr">
+                        <td><strong>大小 (字节)</strong></td>
+                        <td class="text-muted" id="blk-size"></td>
+                      </tr>
+                      <tr class="modal-tr">
+                        <td><strong>版本</strong></td>
+                        <td class="text-muted" id="blk-version"></td>
+                      </tr>
+                      <tr class="modal-tr">
+                        <td><strong>Nonce</strong></td>
+                        <td class="text-muted" id="blk-nonce"></td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+        </div>
+                
+<!-- Block Explorer Page -->
+        <article id="blockdata" style="display:none;">
+            <div class="content top">
+                <h2>区块查询</h2>
+            </div>
+            <div class="bottom">
+                <div class="content">
+                    <div>
+                    <input id="filter-blocks" style="width:75%;height:40px;padding:0 10px;vertical-align:top;" placeholder="查找区块的HASH/高度/交易记录" onkeydown="if (event.keyCode == 13) blockExplorerPage.findBlock( this.value );" onblur="blockExplorerPage.findBlock(this.value);" />&nbsp;&nbsp;&nbsp;<img id="refreshIcon" width="24" height="24" style="cursor:default; position:relative; top:8px;"  src="qrc:///icons/syncing_static" title="Refresh Latest Blocks" onmouseover="this.src='qrc:///icons/syncing'" onmouseout="this.src='qrc:///icons/syncing_static'" onclick=" $('#filter-blocks').val(''); blockExplorerPage.updateLatestBlocks();" /></div>
+                    <table id="latest-blocks-table" class="footable butterfly" data-page=false data-filter="#filter-outputs">
+                        <thead>
+                            <tr>
+                                <th data-toggle="true"  title="Hash" data-sort-initial="ascending">Hash</th>
+                                <th data-toggle="true"  data-type="numeric" title="Height" data-sort-initial="ascending">高度</th>
+                                <th data-type="numeric" title="Timestamp">时间截</th>
+                                <th data-type="numeric" title="Transactions">交易记录</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4" style="background:#E5203D!important;">
+                                    <div class="pagination pagination-centered hide-if-no-paging"></div>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <br>
+                    <table id="block-txs-table" class="footable butterfly none">
+                        <thead>
+                            <tr>
+                                <th data-toggle="true"  title="Transaction Hash" data-sort-initial="ascending">交易记录 Hash</th>
+                                <th data-toggle="true"  data-type="numeric" title="Value Out" data-sort-initial="ascending">Value Out</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2" style="background:#E5203D!important;">
+                                    <div class="pagination pagination-centered hide-if-no-paging"></div>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div><!-- /content -->
+            </div><!-- /bottom -->
+        </article><!-- /chaindata page -->
+
+        <!-- Game Page -->
+        <article id="game" style="display:none;">
+            <div class="content top">
+                <h2>蝴蝶竞猜</h2>
+            </div>
+            <div class="bottom">
+                <div class="content">
+                    <div>
+                        <thead>
+                            <a>每次支付50BFC，确认发送将会自动扣取.Please wait for development.</a>
+                        </thead>
+                        <tbody>
+                            <table class="gametable">
+
+                             </table>
+                        <div id="recipients">
+                        </div>
+                        <div class="ui-buttons">
+                            <span title="Current spendable balance"><a class="current_spenable_balance"><b>余额:</b> <span class="balance">0.00</span> <span class="unit">BFC</span></span>
+                            <span></span>
+                            <a class="button is-inverse has-icon-spacing" onclick="sendCoins();" title="Confirm the send action"><i class="fa fa-arrow-right"></i>发送</a>
+                        </div>
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <td colspan="2" style="background:#E5203D!important;">
+                                <div class="pagination pagination-centered hide-if-no-paging"></div>
+                            </td>
+                        </tr>
+                        </tfoot>
+                </div><!-- /content -->
+            </div><!-- /bottom -->
+        </article><!-- /chaindata page -->
+
+
+        <!-- Market Page -->
+                <article id="market" style="display:none;">
+                    <div class="content top">
+                        <h2>蝴蝶市场</h2>
+                    </div>
+                    <div class="bottom">
+                        <div class="content">
+                            <div>
+                                <input id="filter-market" style="width:75%;height:40px;padding:0 10px;vertical-align:top;" placeholder="搜索喜欢的物品" onkeydown="if (event.keyCode == 13) market.findmarket( this.value );" onblur="market.findmarket(this.value);" />&nbsp;&nbsp;&nbsp;<img id="refreshIcon" width="24" height="24" style="cursor:default; position:relative; top:8px;"  src="qrc:///icons/syncing_static" title="搜索喜欢的物品" onmouseover="this.src='qrc:///icons/syncing'" onmouseout="this.src='qrc:///icons/syncing_static'" onclick=" $('#filter-market').val(''); market.ma();" /></div>
+                            <table id="block-txs-table" class="footable butterfly none">
+                                <thead>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="2" style="background:#E5203D!important;">
+                                            <div class="pagination pagination-centered hide-if-no-paging"></div>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div><!-- /content -->
+                    </div><!-- /bottom -->
+                </article><!-- /chaindata page -->
+        <!-- Auction Page -->
+                <article id="auction" style="display:none;">
+                    <div class="content top">
+                        <h2>蝴蝶拍卖</h2>
+                    </div>
+                    <div class="bottom">
+                        <div class="content">
+                            <div>
+                                <input id="filter-auction" style="width:75%;height:40px;padding:0 10px;vertical-align:top;" placeholder="搜索最热的拍卖" onkeydown="if (event.keyCode == 13) auction.findauction( this.value );" onblur="auction.findauction(this.value);" />&nbsp;&nbsp;&nbsp;<img id="refreshIcon" width="24" height="24" style="cursor:default; position:relative; top:8px;"  src="qrc:///icons/syncing_static" title="搜索最热的拍卖" onmouseover="this.src='qrc:///icons/syncing'" onmouseout="this.src='qrc:///icons/syncing_static'" onclick=" $('#filter-auction').val(''); auction.au();" /></div>
+                            <table id="block-txs-table" class="footable butterfly none">
+                                <thead>
+                                    <tr>
+                                        <th data-toggle="true"  title="Transaction Hash" data-sort-initial="ascending">Transaction Hash</th>
+                                        <th data-toggle="true"  data-type="numeric" title="Value Out" data-sort-initial="ascending">Value Out</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="2" style="background:#E5203D!important;">
+                                            <div class="pagination pagination-centered hide-if-no-paging"></div>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div><!-- /content -->
+                    </div><!-- /bottom -->
+                </article><!-- /chaindata page -->
+
+
+
+
+
+<!-- Options Page -->
+        <article id="options" style="display:none;">
+            <div class="content top">
+                <h2>选项</h2>
+            </div>
+
+            <div class="bottom">
+                <div class="content">
+
+                    <div id="options-main">
+                        <h3>主要</h3>
+
+                        <div class="option">
+                            <input  id="optStartAtStartup" type="checkbox" />
+                            <label for="optStartAtStartup" class="option">启动蝴蝶系统登录</label>
+                        </div>
+                        <div class="option">
+                            <input  id="optDetachDatabases" type="checkbox" />
+                            <label for="optDetachDatabases" class="option">分离停机数据库</label>
+                        </div>
+                        <div class="option">
+                            <p>每KB可选的交易费用，有助于确保您的交易快速处理。大多数交易是1kB的。费0.01建议。</p>
+                            <label for="optFee" class="option">支付交易费：</label>
+                            <input  id="optFee" type="number" placeholder="0.00000000" step="0.01" value="0.00000000" onchange="unit.parse(this, $('#optFeeunit').val());" />
+                            <select id="optFeeunit" class="unit button is-inverse has-fixed-icon" style="margin-left:10px; height:43px; width:100px;" onchange="unit.format('#optFee', $(this).val());">
+                                <option value="0" title="Butterflyw">BFC</option>
+                                <option value="1" title="Milli-Butterfly (1 / 1000)">mBFC</option>
+                                <option value="2" title="Micro-Butterfly (1 / 1000000)">&micro;BFC</option>
+                                <option value="3" title="Butterflyshi (1 / 100000000)">Butterflyshi</option>
+                            </select>
+                        </div>
+                        <div class="option">
+                            <input  id="optStaking" type="checkbox" data-linked="optReserveBalance optReserveBalanceunit" />
+                            <label for="optStaking" class="option">启用 注</label>
+                        </div>
+                        <div class="option">
+                            <p>保留金额不参与下注的，可在任何时间。</p>
+                            <label for="optReserveBalance" class="option">储备：</label>
+                            <input  id="optReserveBalance" type="number" placeholder="0.00000000" step="0.01" value="0.00000000" onchange="unit.parse(this, $('#optReserveBalanceunit').val());" />
+                            <select id="optReserveBalanceunit" class="unit button is-inverse has-fixed-icon" style="margin-left:10px; height:43px; width:100px;" onchange="unit.format('#optReserveBalance', $(this).val());">
+                                <option value="0" title="Butterfly">BFC</option>
+                                <option value="1" title="Milli-Butterfly (1 / 1000)">mBFC</option>
+                                <option value="2" title="Micro-Butterfly (1 / 1000000)">&micro;BFC</option>
+                                <option value="3" title="Butterflyshi (1 / 100000000)">Butterflyshi</option>
+                            </select>
+                        </div>
+                        <div class="option">
+                            <label for="optMinStakeInterval" class="option" title="在几秒钟内成功的赌注">最低投注时间间隔</label>
+                            <input  id="optMinStakeInterval" type="number" placeholder="30" step="1" title="在几秒钟内成功的赌注" />
+                        </div>
+                        <div class="option">
+                            <label for="optMinRingSize" class="option">最小:</label>
+                            <input  id="optMinRingSize" type="number" min="3"   placeholder="3" step="1" />
+                        </div>
+                        <div class="option">
+                            <label for="optMaxRingSize" class="option">最大:</label>
+                            <input  id="optMaxRingSize" type="number" max="200" placeholder="100" step="1" />
+                        </div>
+                        <!--div class="option">
+                            <input  id="optAutoRedeemButterfly" type="checkbox" title="Butterfly will be converted to BFC as soon as has confirmed and wallet is unlocked" />
+                            <label for="optAutoRedeemButterfly" class="option" title="Butterfly will be converted to BFC as soon as has confirmed and wallet is unlocked">Auto-redeem butterfly</label>
+                        </div-->
+                        <div class="option">
+                            <input  id="optAutoRingSize" type="checkbox" title="Automatically select ring size based on best available output counts" />
+                            <label for="optAutoRingSize" class="option" title="Automatically select ring size based on best available output counts">自动选择大小</label>
+                        </div>
+                        <div class="option">
+                            <input  id="optSecureMessaging" type="checkbox" />
+                            <label for="optSecureMessaging" class="option">启用安全消息</label>
+                        </div>
+                        <div class="option">
+                            <input  id="optThinMode" type="checkbox" data-linked="optThinFullIndex optThinIndexWindow" />
+                            <label for="optThinMode" class="option">薄模式（需要重新启动）)</label>
+                        </div>
+                        <div class="option">
+                            <input  id="optThinFullIndex" type="checkbox" title="Keep the entire block index in memory" />
+                            <label for="optThinFullIndex" class="option"  title="Keep the entire block index in memory">细实指数</label>
+                        </div>
+                        <div class="option">
+                            <label for="optThinIndexWindow" title="When not thinfullindex, the max number of block headers to keep in memory">索引窗口</label>
+                            <input  id="optThinIndexWindow" title="When not thinfullindex, the max number of block headers to keep in memory" type="number" placeholder="4096" step="64" type="checkbox" />
+                        </div>
+                    </div><!-- /#options-main -->
+
+                    <hr>
+
+                    <div id="options-network">
+                        <h3>网络</h3>
+
+                        <div class="option">
+                            <input  id="optMapPortUPnP" type="checkbox" />
+                            <label for="optMapPortUPnP" class="option">使用UPnP端口映射</label>
+                        </div>
+                        <div class="option">
+                            <input  id="optProxyUse" type="checkbox" data-linked="optProxyIP optProxyPort optProxySocksVersion" />
+                            <label for="optProxyUse" class="option">连接通过SOCKS代理:</label>
+                        </div>
+                        <div class="option">
+                            <label for="optProxyIP"           class="option">Proxy IP:</label>
+                            <input  id="optProxyIP"           class="input_box" placeholder="127.0.0.1" />
+                            <label for="optProxyPort"         class="option">Port:</label>
+                            <input  id="optProxyPort"         class="input_box" placeholder="9050" />
+                            <label for="optProxySocksVersion" class="option">SOCKS Version:</label>
+                            <select id="optProxySocksVersion" class="button is-inverse has-fixed-icon" style="height:43px; width:50px;">
+                                <option>4</option>
+                                <option>5</option>
+                            </select>
+                        </div>
+                    </div><!-- /#options-network -->
+
+                    <hr>
+
+                    <div id="options-window">
+                        <h3>窗口化</h3>
+
+                        <div class="option">
+                            <input  id="optMinimizeToTray" type="checkbox" />
+                            <label for="optMinimizeToTray" class="option">最小化到托盘的代替任务栏</label>
+                        </div>
+                        <div class="option">
+                            <input  id="optMinimizeOnClose" type="checkbox" />
+                            <label for="optMinimizeOnClose" class="option">最小化关闭</label>
+                        </div>
+                    </div><!-- /#options-window -->
+
+                    <hr>
+
+                    <div id="options-display">
+                        <h3>显示</h3>
+
+                        <div class="option">
+                            <label for="optLanguage" class="option" style="width:200px;text-align:right;">用户界面语言（中文选择默认）:</label>
+                            <select id="optLanguage" class="button is-inverse has-fixed-icon" style="width:200px;">
+                                <!--option>(default)</option-->
+                            </select>
+                        </div>
+                        <div class="option">
+                            <label for="optDisplayUnit" class="option" style="width:200px;text-align:right;">显示金额单位:</label>
+                            <select id="optDisplayUnit" class="button is-inverse has-fixed-icon" style="width:200px;">
+                                <option value="0" title="Butterfly">BFC</option>
+                                <option value="1" title="Milli-Butterfly (1 / 1000)">mBFC</option>
+                                <option value="2" title="Micro-Butterfly (1 / 1000000)">&micro;BFC</option>
+                                <option value="3" title="Butterflyshi (1 / 100000000)">Butterflyshi</option>
+                            </select>
+                        </div>
+                        <div class="option">
+                            <label for="optRowsPerPage" class="option" style="width:200px;text-align:right;">每页行数:</label>
+                            <input  id="optRowsPerPage" type="number"  style="width:200px;" placeholder="20" step="5" value="20" />
+                        </div>
+                        <div class="option">
+                            <input  id="optDisplayAddresses" type="checkbox" />
+                            <label for="optDisplayAddresses" class="option">在交易清单显示的地址</label>
+                        </div>
+                        <div class="option select-multiple">
+                            <label for="optNotifications" class="option">通知:</label>
+                            <select id="optNotifications" class="button is-inverse has-fixed-icon" multiple size="8">
+                                <!--optgroup label="Transactions">
+                                    <option>Received with</option>
+                                    <option>Received from</option>
+                                    <option>Received Butterfly</option>
+                                    <option>Sent to</option>
+                                    <option>Sent Butterfly</option>
+                                    <option>Stake</option>
+                                    <option>Other</option>
+                                </optgroup>
+                                <optgroup label="Messages">
+                                    <option>Incoming Messages</option>
+                                    <option>Group Messages</option>
+                                    <option>Broadcasts</option>
+                                </optgroup-->
+                            </select>
+                        </div>
+                        <div class="option select-multiple">
+                            <label for="optVisibleTransactions" class="option">可见交易类型s:</label>
+                            <select id="optVisibleTransactions" class="button is-inverse has-fixed-icon" multiple size="7">
+                                <!--option>Received with</option>
+                                <option>Received from</option>
+                                <option>Received Butterfly</option>
+                                <option>Sent to</option>
+                                <option>Sent Butterfly</option>
+                                <option>Stake</option>
+                                <option>Other</option-->
+                            </select>
+                        </div>
+                    </div><!-- /#options-display -->
+
+                    <div class="ui-buttons">
+                        <a class="button is-inverse has-icon-spacing" id="options-ok"     href="#" onclick="if(this.className.indexOf('disabled') == -1){optionsPage.save();prevPage.click();}">OK <i class="fa fa-check"></i></a>
+                        <a class="button is-inverse has-icon-spacing" id="options-cancel" href="#" onclick="optionsPage.update();prevPage.click();">Cancel <i class="fa fa-times"></i></a>
+                        <a class="button is-inverse has-icon-spacing" id="options-apply"  href="#" onclick="if(this.className.indexOf('disabled') == -1) optionsPage.save();">Apply <i class="fa fa-floppy-o"></i></a>
+                    </div>
+                </div><!-- /content -->
+            </div><!-- /bottom -->
+        </article><!-- /chaindata page -->
+
+
+        <!-- News Page -->
+        <article id="news" style="display:none;">
+            <div class="content top">
+                <h2>News</h2>
+            </div>
+
+            <div class="bottom">
+
+                <div class="content flex">
+
+                </div><!-- /content -->
+            </div><!-- /bottom -->
+        </article><!-- /news page -->
+
+        <div id="footer">
+            <span id="footer-icons">
+                <i id="encryptionIcon"    style="padding-right:5px;" class="fa fa-lock fa-lg cursor-pointer red" onclick="bridge.userAction(['toggleLock']);" title="Wallet is encrypted and currently locked"></i>
+                <i id="stakingIcon"       style="padding-right:5px;" class="fa fa-cog fa-lg not-staking" title="Not staking because wallet is locked"></i>
+                <img id="connectionsIcon" style="cursor:default; padding-right:5px" src="qrc:///icons/connect_0"/ title="0 active connection(s) to ButterflyCoin network" />
+                <img id="syncingIcon"     style="cursor:default;"                  src="qrc:///icons/syncing"/ title="Wallet is syncing" />
+                <i id="blocksIcon" class="fa fa-check red none" title="Wallet is syncing"></i>
+            </span>
+        </div><!-- /footer -->
+        <div id="network-alert" style="display:none;">
+            <i class="fa fa-exclamation-triangle network-alerts-icon"></i> <span></span>
+        </div>
+    </div><!-- /container -->
+</div><!-- /layout -->
+</body>
+<script src="qrc:///js/main.js" type="text/javascript"></script>
+</html>
+
+
