@@ -1,10 +1,19 @@
-
 ButterflyCoin development tree
+=====================================
 
 ButterflyCoin is a PoS-based cryptocurrency.
 
+http://www.butterflycoin.info
+
+License
+-------
+
+Butterflycoin Core is released under the terms of the MIT license. See [COPYING](COPYING) for more
+information or see http://opensource.org/licenses/MIT.
+
+
 Development process
-===========================
+-------------------
 
 Developers work in their own trees, then submit pull requests when
 they think their feature or bug fix is ready.
@@ -30,3 +39,11 @@ in this manner will have their corresponding issue labeled 'stagnant'.
 Issues with no commits will be given a similar warning, and closed after
 15 days from their last activity. Issues closed in this manner will be 
 labeled 'stale'.
+
+Testing
+-------
+
+Testing and code review is the bottleneck for development; we get more pull
+requests than we can review and test on short notice. Please be patient and help out by testing
+other people's pull requests, and remember this is a security-critical project where any mistake might cost people
+lots of money.
